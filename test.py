@@ -1,4 +1,10 @@
-#aa
+from machine import Pin, I2C
+from umqtt.simple import MQTTClient
+from ustruct import unpack
+import sys
+import time
+
+
 def do_connect():
     import network
     sta_if = network.WLAN(network.STA_IF)
@@ -10,18 +16,15 @@ def do_connect():
             pass
     print('network config:', sta_if.ifconfig())
 
-from machine import Pin, I2C
-from umqtt.simple import MQTTClient
-from ustruct import unpack
-import sys
 
-do_connect()
+do_connect() #connect to the internet /wifi network
 
 i2c = I2C(scl = Pin(4),sda = Pin(5),freq = 500000)
 
 addr = i2c.scan()[0] #Finding the address of the device
 
 #Setting the registers to variables
+#vighram you need to say why you setting the registers to variables
 CTRL_Reg1 = 0x20
 OUT_RegX_L = 0x28
 OUT_RegY_L = 0x2A
