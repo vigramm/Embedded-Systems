@@ -3,6 +3,7 @@ from umqtt.simple import MQTTClient
 from ustruct import unpack
 import sys
 import time
+import ujson
 
 
 def do_connect():
@@ -21,7 +22,7 @@ def convert_to_ms (high,low):
     b = bytearray(low)
     aa = b + a
     Gval = unpack('<h', aa)[0] #signed integer
-    return ((Gval*39.2)/32768);
+    return (str((Gval*39.2)/32768));
 
 #do_connect() #connect to the internet /wifi network
 
@@ -65,9 +66,12 @@ while True:
     #Reading and printing the rest of the data
 
     #print(i2c.readfrom_mem(addr,OUT_RegX_H,1),i2c.readfrom_mem(addr,OUT_RegX_L,1))
-    print (xval,ms )
-    print (yval,ms )
-    print (zval,ms )
+    #print (xval,ms )
+    #print (yval,ms )
+    #print (zval,ms )
+
+    payload = ujson.dumps({"xacc": (xval + ms) , "yacc": (yval + ms) , "zacc": (zval + ms)})
+    print (payload)
     time.sleep(1.0)  # Delay for 3 seconds
 
 
