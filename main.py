@@ -24,7 +24,9 @@ def convert_to_ms (high,low):
     Gval = unpack('<h', aa)[0] #signed integer
     return (str((Gval*39.2)/32768));
 
-#do_connect() #connect to the internet /wifi network
+do_connect() #connect to the internet /wifi network
+client = MQTTClient('unnamed1', '192.168.0.10')
+client.connect()
 
 i2c = I2C(scl = Pin(4),sda = Pin(5),freq = 500000)
 
@@ -44,7 +46,7 @@ CTRL_Reg4 = 0x23 #this sets it to +-16G resolution and high resolution output
 #Setting certain bits to 0 and certain bits to 1 depending on our needs
 #I2C.writeto_mem(addr, memaddr, buf)
 i2c.writeto_mem(addr, CTRL_Reg1, bytearray([23]))
-i2c.writeto_mem(addr, CTRL_Reg4, bytearray([18])) #resolution 8G and high res output
+i2c.writeto_mem(addr, CTRL_Reg4, bytearray([18])) #resolution 4G and high res output
 #Reading the data
 #I2C.readfrom_mem(addr, memaddr, nbytes)
 alpha = i2c.readfrom_mem(addr,CTRL_Reg1,1)
@@ -72,6 +74,7 @@ while True:
 
     payload = ujson.dumps({"xacc": (xval + ms) , "yacc": (yval + ms) , "zacc": (zval + ms)})
     print (payload)
+    client.publish('esys/<fantastic four>/...', bytearray(str(payload)))
     time.sleep(1.0)  # Delay for 3 seconds
 
 
