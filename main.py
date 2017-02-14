@@ -33,7 +33,7 @@ i2c = I2C(scl = Pin(4),sda = Pin(5),freq = 500000)
 addr = i2c.scan()[0] #Finding the address of the device
 
 #Setting the registers to variables
-#vighram you need to say why you setting the registers to variables
+#vigram you need to say why you setting the registers to variables
 CTRL_Reg1 = 0x20
 OUT_RegX_L = 0x28
 OUT_RegY_L = 0x2A
@@ -52,6 +52,10 @@ i2c.writeto_mem(addr, CTRL_Reg4, bytearray([18])) #resolution 4G and high res ou
 alpha = i2c.readfrom_mem(addr,CTRL_Reg1,1)
 ms = "m/s^2"
 
+xval=0
+yval=0
+zval=0
+
 while True:
     x_h = i2c.readfrom_mem(addr,OUT_RegX_H,1)
     x_l = i2c.readfrom_mem(addr,OUT_RegX_L,1)
@@ -61,9 +65,24 @@ while True:
     z_l = i2c.readfrom_mem(addr,OUT_RegZ_L,1)
     #a = bytearray(alpha)
     #beta = unpack('<H', a)[0]
+    
+    a=xval
+    b=yval
+    c=zval
+    
     xval = convert_to_ms(x_h , x_l)
     yval = convert_to_ms(y_h , y_l)
     zval = convert_to_ms(z_h , z_l)
+    
+    if(xval>a)
+    {
+        print ("Collision")
+    }
+    
+    if(yval>b)
+    {
+        print ("Collision")
+    }
 
     #Reading and printing the rest of the data
 
