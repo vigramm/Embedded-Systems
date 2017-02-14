@@ -65,24 +65,22 @@ while True:
     z_l = i2c.readfrom_mem(addr,OUT_RegZ_L,1)
     #a = bytearray(alpha)
     #beta = unpack('<H', a)[0]
-    
+
     a=xval
     b=yval
     c=zval
-    
+
     xval = convert_to_ms(x_h , x_l)
     yval = convert_to_ms(y_h , y_l)
     zval = convert_to_ms(z_h , z_l)
-    
-    if(xval>a)
-    {
+
+    if(xval<a):
         print ("Collision")
-    }
-    
-    if(yval>b)
-    {
+
+
+    if(yval<b):
         print ("Collision")
-    }
+
 
     #Reading and printing the rest of the data
 
