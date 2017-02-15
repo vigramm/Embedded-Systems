@@ -5,7 +5,7 @@ import sys
 import time
 import ujson
 import math
-
+#
 #Connect to the internet
 def do_connect():
     import network
