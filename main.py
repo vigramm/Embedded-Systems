@@ -83,7 +83,7 @@ while True:
     check_x = check_safe (xval,a)
     check_y = check_safe (yval,b)
     check_z = check_safe (zval,c)
-    
+
     #give verdict
     if check_x or check_y or check_z :
         verdict_ = "safe"
