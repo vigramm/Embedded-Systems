@@ -17,10 +17,6 @@ def do_connect():
             pass
     print('network config:', sta_if.ifconfig())
 
-def mqqt_connect():
-    client = MQTTClient('unnamed1', '192.168.0.10')
-    client.connect()
-
 def convert_to_ms (high,low):
     a = bytearray(high)
     b = bytearray(low)
@@ -30,14 +26,13 @@ def convert_to_ms (high,low):
 
 def check_safe (current_val , prev_val):
     diff_ = current_val - prev_val
-    if abs(diff_) > 8 : #collision occured
+    if abs(diff_) > 5 : #collision occured
         verdit = False
     else:
         verdit = True
     return verdit;
 
-#do_connect() #connect to the internet /wifi network
-#mqqt_connect() #connect to mqqt connect
+do_connect() #connect to the internet /wifi network
 
 i2c = I2C(scl = Pin(4),sda = Pin(5),freq = 500000) #define i2c pins
 addr = i2c.scan()[0] #Finding the address of the device
@@ -53,7 +48,10 @@ CTRL_Reg4 = 0x23
 #Setting certain bits to 0 and certain bits to 1 depending on our needs
 #I2C.writeto_mem(addr, memaddr, buf)
 i2c.writeto_mem(addr, CTRL_Reg1, bytearray([23]))
-i2c.writeto_mem(addr, CTRL_Reg4, bytearray([18])) #resolution 4G and high resolution output
+i2c.writeto_mem(addr, CTRL_Reg4, bytearray([24])) #resolution 4G
+
+client = MQTTClient('unnamed1', '192.168.0.10')
+client.connect()
 
 xval = 0.0
 yval = 0.0
@@ -94,5 +92,5 @@ while True:
 
     payload = ujson.dumps({"xacc": (xvall + ms) , "yacc": (yvall + ms) , "zacc": (zvall + ms), "verdict": verdict_})
     print (payload)
-    #client.publish('esys/<fantastic four>/...', bytearray(str(payload)))
+    client.publish('esys/<fantastic four>/...', bytearray(str(payload)))
     time.sleep(0.5)  # Delay for 0.5 seconds
