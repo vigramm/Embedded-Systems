@@ -19,6 +19,7 @@ def do_connect():
     print('network config:', sta_if.ifconfig())
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #Connect to the MQTT device
 def mqqt_connect():
@@ -26,6 +27,8 @@ def mqqt_connect():
     client.connect()
 
 #Convert values received to Metres/Second^2
+>>>>>>> master
+=======
 >>>>>>> master
 def convert_to_ms (high,low):
     a = bytearray(high)
@@ -38,9 +41,15 @@ def convert_to_ms (high,low):
 def check_safe (current_val , prev_val):
     diff_ = current_val - prev_val
 <<<<<<< HEAD
+<<<<<<< HEAD
     if abs(diff_) > 5 : #collision occured
 =======
     if abs(diff_) > 8 : #collision occurs if difference if the change in acceleration is greater than the threshold
+>>>>>>> master
+=======
+
+    if abs(diff_) > 5 : #collision occured
+
 >>>>>>> master
         verdit = False
     else:
@@ -48,8 +57,11 @@ def check_safe (current_val , prev_val):
     return verdit;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 do_connect() #connect to the internet /wifi network
 
+=======
+>>>>>>> master
 =======
 >>>>>>> master
 i2c = I2C(scl = Pin(4),sda = Pin(5),freq = 500000) #define i2c pins
