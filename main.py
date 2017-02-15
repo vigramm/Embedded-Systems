@@ -36,12 +36,6 @@ def check_safe (current_val , prev_val):
         verdit = True
     return verdit;
 
-
-xval = 0.0
-yval = 0.0
-zval = 0.0
-ms = "m/s^2"
-
 #do_connect() #connect to the internet /wifi network
 #mqqt_connect() #connect to mqqt connect
 
@@ -60,6 +54,11 @@ CTRL_Reg4 = 0x23
 #I2C.writeto_mem(addr, memaddr, buf)
 i2c.writeto_mem(addr, CTRL_Reg1, bytearray([23]))
 i2c.writeto_mem(addr, CTRL_Reg4, bytearray([18])) #resolution 4G and high resolution output
+
+xval = 0.0
+yval = 0.0
+zval = 0.0
+ms = "m/s^2"
 
 while True:
     x_h = i2c.readfrom_mem(addr,OUT_RegX_H,1)
