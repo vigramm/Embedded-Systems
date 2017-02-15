@@ -4,7 +4,7 @@ from ustruct import unpack
 import sys
 import time
 import ujson
-
+import math
 
 def do_connect():
     import network
@@ -21,23 +21,6 @@ def mqqt_connect():
     client = MQTTClient('unnamed1', '192.168.0.10')
     client.connect()
 
-def define_pins_addresses():
-    i2c = I2C(scl = Pin(4),sda = Pin(5),freq = 500000) #define i2c pins
-    addr = i2c.scan()[0] #Finding the address of the device
-    #Setting the registers to variables
-    CTRL_Reg1 = 0x20
-    OUT_RegX_L = 0x28
-    OUT_RegY_L = 0x2A
-    OUT_RegZ_L = 0x2C
-    OUT_RegX_H = 0x29
-    OUT_RegY_H = 0x2B
-    OUT_RegZ_H = 0x2D
-    CTRL_Reg4 = 0x23
-    #Setting certain bits to 0 and certain bits to 1 depending on our needs
-    #I2C.writeto_mem(addr, memaddr, buf)
-    i2c.writeto_mem(addr, CTRL_Reg1, bytearray([23]))
-    i2c.writeto_mem(addr, CTRL_Reg4, bytearray([18])) #resolution 4G and high resolution output
-
 def convert_to_ms (high,low):
     a = bytearray(high)
     b = bytearray(low)
@@ -47,22 +30,36 @@ def convert_to_ms (high,low):
 
 def check_safe (current_val , prev_val):
     diff_ = current_val - prev_val
-    if abs(diff_) > 10 : #collision occured
-        verdict = False
+    if abs(diff_) > 8 : #collision occured
+        verdit = False
     else:
-        verdict = True
+        verdit = True
+    return verdit;
 
-    return verdict;
 
-
-xval = 0
-yval = 0
-zval = 0
+xval = 0.0
+yval = 0.0
+zval = 0.0
 ms = "m/s^2"
 
-do_connect() #connect to the internet /wifi network
-mqqt_connect() #connect to mqqt connect
-define_pins_addresses() #define pins of i2c and give names to addresses we need
+#do_connect() #connect to the internet /wifi network
+#mqqt_connect() #connect to mqqt connect
+
+i2c = I2C(scl = Pin(4),sda = Pin(5),freq = 500000) #define i2c pins
+addr = i2c.scan()[0] #Finding the address of the device
+#Setting the registers to variables
+CTRL_Reg1 = 0x20
+OUT_RegX_L = 0x28
+OUT_RegY_L = 0x2A
+OUT_RegZ_L = 0x2C
+OUT_RegX_H = 0x29
+OUT_RegY_H = 0x2B
+OUT_RegZ_H = 0x2D
+CTRL_Reg4 = 0x23
+#Setting certain bits to 0 and certain bits to 1 depending on our needs
+#I2C.writeto_mem(addr, memaddr, buf)
+i2c.writeto_mem(addr, CTRL_Reg1, bytearray([23]))
+i2c.writeto_mem(addr, CTRL_Reg4, bytearray([18])) #resolution 4G and high resolution output
 
 while True:
     x_h = i2c.readfrom_mem(addr,OUT_RegX_H,1)
@@ -71,8 +68,6 @@ while True:
     y_l = i2c.readfrom_mem(addr,OUT_RegY_L,1)
     z_h = i2c.readfrom_mem(addr,OUT_RegZ_H,1)
     z_l = i2c.readfrom_mem(addr,OUT_RegZ_L,1)
-    #a = bytearray(alpha)
-    #beta = unpack('<H', a)[0]
 
     a=xval
     b=yval
@@ -87,10 +82,10 @@ while True:
     check_y = check_safe (yval,b)
     check_z = check_safe (zval,c)
     #give verdict
-    if (check_x = True or check_y = True or check_z = True) :
-        verdict = "safe"
+    if check_x or check_y or check_z :
+        verdict_ = "safe"
     else:
-        verdict = "unsafe - possible collision"
+        verdict_ = "unsafe - possible collision"
 
     #need values as string
     xvall = str(xval)
@@ -98,7 +93,7 @@ while True:
     zvall = str(zval)
 
 
-    payload = ujson.dumps({"xacc": (xvall + ms) , "yacc": (yvall + ms) , "zacc": (zvall + ms), "verdict": verdict})
+    payload = ujson.dumps({"xacc": (xvall + ms) , "yacc": (yvall + ms) , "zacc": (zvall + ms), "verdict": verdict_})
     print (payload)
-    client.publish('esys/<fantastic four>/...', bytearray(str(payload)))
+    #client.publish('esys/<fantastic four>/...', bytearray(str(payload)))
     time.sleep(0.5)  # Delay for 0.5 seconds
