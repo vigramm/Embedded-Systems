@@ -1,11 +1,18 @@
-# Embedded-Systems
-This project is part of EEE department Embedded System coursework
+# Embedded-Systems 
+# Imperial College London EEE Department- Year 3
+# Group: Fantastic Four
 
-We have tried to implement an IOT device that helps sports players involved in a lot of collision to detect these collisions
+We have tried to implement an IOT(Internet of things) device that provides crucial data as to when american football players have encountered a collision.
 
-we have use accelerometer,LIS3DH and Esp8266
+We have use accelerometer,LIS3DH and Esp8266.
 
-boot.py is the first code that runs when esp8266 is connected to power
+# Requirements to implement this code
+
+- Accelerometer LIS3DH
+- [WiFi Module Esp8266](https://learn.adafruit.com/adafruit-feather-huzzah-esp8266/overview)
+- 
+
+Boot.py is the first code that runs when esp8266 is connected to power
 then our main code, main.py runs immediately after
 
 it is here that we implement the detection of a collision
