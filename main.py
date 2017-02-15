@@ -6,6 +6,7 @@ import time
 import ujson
 import math
 
+#Connect to the internet
 def do_connect():
     import network
     sta_if = network.WLAN(network.STA_IF)
@@ -24,18 +25,20 @@ def convert_to_ms (high,low):
     Gval = unpack('<h', aa)[0] #signed integer of G value on a scale up to 32768 being 4G
     return ((Gval*39.2)/32768);
 
+#Check if a collision has occured
 def check_safe (current_val , prev_val):
     diff_ = current_val - prev_val
+
     if abs(diff_) > 5 : #collision occured
+
         verdit = False
     else:
         verdit = True
     return verdit;
 
-do_connect() #connect to the internet /wifi network
-
 i2c = I2C(scl = Pin(4),sda = Pin(5),freq = 500000) #define i2c pins
 addr = i2c.scan()[0] #Finding the address of the device
+
 #Setting the registers to variables
 CTRL_Reg1 = 0x20
 OUT_RegX_L = 0x28
@@ -45,6 +48,7 @@ OUT_RegX_H = 0x29
 OUT_RegY_H = 0x2B
 OUT_RegZ_H = 0x2D
 CTRL_Reg4 = 0x23
+
 #Setting certain bits to 0 and certain bits to 1 depending on our needs
 #I2C.writeto_mem(addr, memaddr, buf)
 i2c.writeto_mem(addr, CTRL_Reg1, bytearray([23]))
@@ -59,6 +63,7 @@ zval = 0.0
 ms = "m/s^2"
 
 while True:
+    #Reading acceleration values
     x_h = i2c.readfrom_mem(addr,OUT_RegX_H,1)
     x_l = i2c.readfrom_mem(addr,OUT_RegX_L,1)
     y_h = i2c.readfrom_mem(addr,OUT_RegY_H,1)
@@ -78,6 +83,7 @@ while True:
     check_x = check_safe (xval,a)
     check_y = check_safe (yval,b)
     check_z = check_safe (zval,c)
+    
     #give verdict
     if check_x or check_y or check_z :
         verdict_ = "safe"
