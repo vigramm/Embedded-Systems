@@ -1,11 +1,13 @@
 from machine import Pin, I2C
 from umqtt.simple import MQTTClient
 from ustruct import unpack
+from machine import RTC
+import machine
 import sys
 import time
 import ujson
 import math
-#
+
 #Connect to the internet
 def do_connect():
     import network
@@ -54,13 +56,59 @@ CTRL_Reg4 = 0x23
 i2c.writeto_mem(addr, CTRL_Reg1, bytearray([23]))
 i2c.writeto_mem(addr, CTRL_Reg4, bytearray([24])) #resolution 4G
 
-client = MQTTClient('unnamed1', '192.168.0.10')
-client.connect()
+#client = MQTTClient('unnamed1', '192.168.0.10')
+#client.connect()
+
 
 xval = 0.0
 yval = 0.0
 zval = 0.0
+
 ms = "m/s^2"
+rtc = machine.RTC()
+
+
+def t3_publication(topic, msg):
+    global rtcdata
+    timeee = ujson.loads(msg)['date']
+    print(timeee)
+    year = int(timeee[0:4])
+    month = int(timeee[5:7])
+    day = int(timeee[8:10])
+    weekday = 4
+    hours = int(timeee[11:13])
+    minutes = int(timeee[14:16])
+    seconds = int(timeee[17:19])
+    subseconds = 0
+    rtcdata = (year,month,day,weekday,hours,minutes,seconds, subseconds)
+    #print (rtcdata)
+    #rtc.datetime(rtcdata)
+    #print(rtc.datetime())
+
+do_connect()
+client = MQTTClient('unnamed1', '192.168.0.10')
+client.set_callback(t3_publication)
+client.connect()
+client.subscribe(b'esys/time')
+a = True
+while a :
+    if True:
+        # Blocking wait for message
+        client.wait_msg()
+        print ("yes2")
+        a = False
+    else:
+        # Non-blocking wait for message
+        client.check_msg()
+        # Then need to sleep to avoid 100% CPU usage (in a real
+        # app other useful actions would be performed instead)
+    time.sleep(4)
+client.disconnect()
+
+print (rtcdata)
+rtc.datetime(rtcdata)
+
+client.connect()
 
 while True:
     #Reading acceleration values
@@ -96,7 +144,10 @@ while True:
     zvall = str(zval)
 
 
-    payload = ujson.dumps({"xacc": (xvall + ms) , "yacc": (yvall + ms) , "zacc": (zvall + ms), "verdict": verdict_})
+
+    current_time = rtc.datetime()
+    #acceleration_data = ["date/time",current_time,""] if you want the order
+    payload = ujson.dumps({"date/time": (current_time) , "xacc": (xvall + ms) , "yacc": (yvall + ms) , "zacc": (zvall + ms), "verdict": verdict_})
     print (payload)
     client.publish('esys/<fantastic four>/...', bytearray(str(payload)))
-    time.sleep(0.5)  # Delay for 0.5 seconds
+    time.sleep(1.5)  # Delay for 0.5 seconds
