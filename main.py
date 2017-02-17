@@ -8,6 +8,8 @@ import time
 import ujson
 import math
 
+
+
 #Connect to the internet
 def do_connect():
     import network
@@ -66,6 +68,19 @@ zval = 0.0
 
 ms = "m/s^2"
 rtc = machine.RTC()
+
+
+def format_from_tuple(tuple):
+    strDay=str(tuple[2])
+    strMonth=str(tuple[1])
+    strYear=str(tuple[0])
+    strHour=str(tuple[4])
+    strMin=str(tuple[5])
+    strSec=str(tuple[6])
+    
+    strDate=strDay+ r"/"+strMonth+r"/"+strYear+"   "+strHour+r":"+strMin+r":"+strSec
+    
+    return strDate
 
 
 def t3_publication(topic, msg):
@@ -146,8 +161,10 @@ while True:
 
 
     current_time = rtc.datetime()
+    strCurrentTime= format_from_tuple (current_time)
+
     #acceleration_data = ["date/time",current_time,""] if you want the order
-    payload = ujson.dumps({"date/time": (current_time) , "xacc": (xvall + ms) , "yacc": (yvall + ms) , "zacc": (zvall + ms), "verdict": verdict_})
+    payload = ujson.dumps({"date/time": (strCurrentTime) , "xacc": (xvall + ms) , "yacc": (yvall + ms) , "zacc": (zvall + ms), "verdict": verdict_})
     print (payload)
     client.publish('esys/<fantastic four>/...', bytearray(str(payload)))
     time.sleep(1.5)  # Delay for 0.5 seconds
