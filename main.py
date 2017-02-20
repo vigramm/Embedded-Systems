@@ -8,6 +8,7 @@ import time
 import ujson
 import math
 
+
 #Connect to the internet
 def do_connect():
     import network
@@ -20,6 +21,7 @@ def do_connect():
             pass
     print('network config:', sta_if.ifconfig())
 
+#Function converts acceleration data to metres/seconds^2
 def convert_to_ms (high,low):
     a = bytearray(high)
     b = bytearray(low)
@@ -30,13 +32,40 @@ def convert_to_ms (high,low):
 #Check if a collision has occured
 def check_safe (current_val , prev_val):
     diff_ = current_val - prev_val
-
     if abs(diff_) > 5 : #collision occured
-
         verdit = False
     else:
         verdit = True
     return verdit;
+
+#Function converts date to the correct format
+def format_from_tuple(tuple):
+    strDay=str(tuple[2])
+    strMonth=str(tuple[1])
+    strYear=str(tuple[0])
+    strHour=str(tuple[4])
+    strMin=str(tuple[5])
+    strSec=str(tuple[6])
+
+    strDate=strDay+ r"/"+strMonth+r"/"+strYear+"   "+strHour+r":"+strMin+r":"+strSec
+
+    return strDate
+
+#Function that gets time from the MQTT broker
+def t3_publication(topic, msg):
+    global rtcdata
+    timeee = ujson.loads(msg)['date']
+    print(timeee)
+    year = int(timeee[0:4])
+    month = int(timeee[5:7])
+    day = int(timeee[8:10])
+    weekday = 4
+    hours = int(timeee[11:13])
+    minutes = int(timeee[14:16])
+    seconds = int(timeee[17:19])
+    subseconds = 0
+    rtcdata = (year,month,day,weekday,hours,minutes,seconds, subseconds)
+
 
 i2c = I2C(scl = Pin(4),sda = Pin(5),freq = 500000) #define i2c pins
 addr = i2c.scan()[0] #Finding the address of the device
@@ -56,40 +85,22 @@ CTRL_Reg4 = 0x23
 i2c.writeto_mem(addr, CTRL_Reg1, bytearray([23]))
 i2c.writeto_mem(addr, CTRL_Reg4, bytearray([24])) #resolution 4G
 
-#client = MQTTClient('unnamed1', '192.168.0.10')
-#client.connect()
 
-
-xval = 0.0
-yval = 0.0
-zval = 0.0
-
-ms = "m/s^2"
-rtc = machine.RTC()
-
-
-def t3_publication(topic, msg):
-    global rtcdata
-    timeee = ujson.loads(msg)['date']
-    print(timeee)
-    year = int(timeee[0:4])
-    month = int(timeee[5:7])
-    day = int(timeee[8:10])
-    weekday = 4
-    hours = int(timeee[11:13])
-    minutes = int(timeee[14:16])
-    seconds = int(timeee[17:19])
-    subseconds = 0
-    rtcdata = (year,month,day,weekday,hours,minutes,seconds, subseconds)
-    #print (rtcdata)
-    #rtc.datetime(rtcdata)
-    #print(rtc.datetime())
-
+#Conect to MQTT broker
 do_connect()
 client = MQTTClient('unnamed1', '192.168.0.10')
 client.set_callback(t3_publication)
 client.connect()
 client.subscribe(b'esys/time')
+
+ms = "m/s^2"
+rtc = machine.RTC()
+
+xval = 0.0
+yval = 0.0
+zval = 0.0
+
+
 a = True
 while a :
     if True:
@@ -103,13 +114,14 @@ while a :
         # Then need to sleep to avoid 100% CPU usage (in a real
         # app other useful actions would be performed instead)
     time.sleep(4)
-client.disconnect()
 
+
+client.disconnect()
 print (rtcdata)
 rtc.datetime(rtcdata)
 
-client.connect()
 
+client.connect()
 while True:
     #Reading acceleration values
     x_h = i2c.readfrom_mem(addr,OUT_RegX_H,1)
@@ -132,6 +144,7 @@ while True:
     check_y = check_safe (yval,b)
     check_z = check_safe (zval,c)
 
+
     #give verdict
     if check_x or check_y or check_z :
         verdict_ = "safe"
@@ -144,10 +157,12 @@ while True:
     zvall = str(zval)
 
 
-
+    #getting time and converting it to the right format( dd/mm/yyyy hh:mm:ss)
     current_time = rtc.datetime()
+    strCurrentTime= format_from_tuple (current_time)
+
     #acceleration_data = ["date/time",current_time,""] if you want the order
-    payload = ujson.dumps({"date/time": (current_time) , "xacc": (xvall + ms) , "yacc": (yvall + ms) , "zacc": (zvall + ms), "verdict": verdict_})
+    payload = ujson.dumps({"time":(strCurrentTime) , "xacc": (xvall + ms) , "yacc": (yvall + ms) , "zacc": (zvall + ms), "verdict": verdict_})
     print (payload)
     client.publish('esys/<fantastic four>/...', bytearray(str(payload)))
     time.sleep(1.5)  # Delay for 0.5 seconds
