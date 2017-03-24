@@ -333,8 +333,8 @@ void docontrolv(){
 
 
 
-//..............................................puttyinput.......................................................
-void Puttyinput(){
+//..............................................Takeinput.......................................................
+void Takeinput(){
     STATE current_state = STATE0;
     while (1) {
         printf("Input command: \n\r");
@@ -431,7 +431,7 @@ Thread onlyR (osPriorityNormal, 800, NULL);
 
 int main(){
 
-    Puttyinput();
+    Takeinput();
     if (n >= 0) {
         lead = leadf;
 
@@ -474,3 +474,4 @@ int main(){
 
 
     }
+    
