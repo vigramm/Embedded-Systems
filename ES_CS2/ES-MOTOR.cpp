@@ -106,7 +106,7 @@ double initial_time = 0.0 ;
 double next_instance = 20.0;
 
 
-//........................................Variables for puttinput.................................................
+//........................................Variables for Takeinput.................................................
 char charctr; //ch
 double invert_R =1;//R_inv
 double j = 0; //i
@@ -474,4 +474,3 @@ int main(){
 
 
     }
-    
