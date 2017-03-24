@@ -1,4 +1,3 @@
-
 #include "mbed.h"
 #include "rtos.h"
 #include <stdlib.h>
@@ -197,12 +196,17 @@ void docontrol(){
     int8_t intState = 0;
     int8_t intStateOld = 0;
 
+    //k constants for controllers
+    double gv = 1.0/3.9, kpv = 4.0, kiv = 0.00001;
+    double gd = 1.0/180.0, kpd = 2.4, kdd = 0.3285, kid = 10.0;
+
+
     //Run the motor synchronisation
     orState = motorHome();
 
     while (1){
-    pwmv = (1.0/3.9) * ((4.0 * delta  ) + (0.00001 * ii));
-            pwmd = (1.0/180.0) * ((2.4 * s) - ( 0.3285 * (velocity)) + 16.0);
+    pwmv = gv * ((kpv * delta  ) + (kiv * ii));
+            pwmd = gd * ((kpd * s) - ( kdd * (velocity)) + kid);
             //pwmd = (1.0/30.0) * ((2.63 * s) - ( 0.3285 * (velocity)) + 10.0);
             if (pwmv < pwmd){
                 pwm = pwmv;
@@ -250,12 +254,16 @@ void docontrolr(){
     int8_t intState = 0;
     int8_t intStateOld = 0;
 
+    //k constants for controllers
+    double gv = 1.0/4.0, kpv = 4.0, kiv = 0.00001;
+    double gd = 1.0/250.0, kpd = 2.4, kdd = 3.4, kid = 16.0;
+
     //Run the motor synchronisation
     orState = motorHome();
 
     while (1){
-    pwmv = (1.0/4.0) * ((4.0 * delta  ) + (0.00001 * ii));
-            pwmd = (1.0/250.0) * ((2.4 * s) - ( 3.4 * (velocity)) + 16.0);
+    pwmv = gv * ((kpv * delta  ) + (kiv * ii));
+            pwmd = gd * ((kpd * s) - ( kdd * (velocity)) + kid);
             //pwmd = (1.0/30.0) * ((2.63 * s) - ( 0.3285 * (velocity)) + 10.0);
             if (pwmv < pwmd){
                 pwm = pwmv;
@@ -290,12 +298,16 @@ void docontrolv(){
     int8_t intState = 0;
     int8_t intStateOld = 0;
 
+    //k constants for controllers
+    double gv = 1.0/4.0, kpv = 4.0, kiv = 0.00001;
+    double gd = 1.0/250.0, kpd = 2.4, kdd = 0.3285, kid = 10.0;
+
     //Run the motor synchronisation
     orState = motorHome();
 
     while (1){
-    pwmv = (1.0/4.0) * ((4.0 * delta  ) + (0.00001 * ii));
-            pwmd = (1.0/250.0) * ((2.4 * s) - ( 0.3285 * (velocity)) + 10.0);
+    pwmv = gv * ((kpv * delta  ) + (kiv * ii));
+            pwmd = gd * ((kpd * s) - ( kdd * (velocity)) + kid);
             //pwmd = (1.0/30.0) * ((2.63 * s) - ( 0.3285 * (velocity)) + 10.0);
 
             //pc.printf ("%f, %f, %f \t %f \t%f \t %f \t %f \n" , (4.0 * delta), (0.20 *ii), pwm,pwmv,pwmd,(velocity ), (counter/117.0));
